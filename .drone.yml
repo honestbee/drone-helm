@@ -7,7 +7,9 @@ pipeline:
     image: golang:1.8
     commands:
       - go get
+      - go get github.com/mattn/goveralls
       - go test -cover -coverprofile=coverage.out
+      - goveralls -coverprofile=gover.coverprofile -service=drone  -repotoken ${COVERALLS_TOKEN}
 
   compile:
     image: golang:1.8
@@ -18,7 +20,7 @@ pipeline:
 
   publish:
     image: plugins/docker
-    repo: quay.io/honestbee/registry-monitor
+    repo: quay.io/honestbee/drone-helm
     tags: 
       - "latest"
       - ${DRONE_BRANCH}-${DRONE_COMMIT_SHA:0:7}
