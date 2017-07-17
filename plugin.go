@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/alecthomas/template"
@@ -68,7 +69,7 @@ func setPushEventCommand(p *Plugin) {
 	upgrade = append(upgrade, p.Config.Chart)
 	if p.Config.Values != "" {
 		upgrade = append(upgrade, "--set")
-		upgrade = append(upgrade, p.Config.Values)
+		upgrade = append(upgrade, unQuote(p.Config.Values))
 	}
 	if p.Config.ValuesFiles != "" {
 		for _, valuesFile := range strings.Split(p.Config.ValuesFiles, ",") {
@@ -191,6 +192,15 @@ func runCommand(params []string) error {
 
 	err := cmd.Run()
 	return err
+}
+
+func unQuote(s string) string {
+	unquoted, err := strconv.Unquote(s)
+	if err != nil {
+		// ignore error and return original string
+		return s
+	}
+	return unquoted
 }
 
 func resolveSecrets(p *Plugin) {
