@@ -6,7 +6,7 @@ ENV FILENAME helm-${VERSION}-linux-amd64.tar.gz
 ENV KUBECTL v1.6.6
 
 RUN set -ex \
-  && apk -v --no-cache add --virtual build-dependencies \
+  && apk -v --no-cache add \
     curl \
   && curl -sLo /tmp/${FILENAME} http://storage.googleapis.com/kubernetes-helm/${FILENAME} \
   && curl -sLo /tmp/kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL}/bin/linux/amd64/kubectl \
@@ -14,8 +14,7 @@ RUN set -ex \
   && mv /tmp/linux-amd64/helm /bin/helm \
   && chmod +x /tmp/kubectl \
   && mv /tmp/kubectl /bin/kubectl \
-  && rm -rf /tmp \
-  && apk del build-dependencies
+  && rm -rf /tmp 
 
 LABEL description="Kubeclt and Helm."
 LABEL base="alpine"
