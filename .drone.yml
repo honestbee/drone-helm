@@ -25,7 +25,7 @@ pipeline:
     when:
       branch: [master, add-repo-support]
 
- notify:
+  notify:
     image: plugins/slack
     webhook: ${SLACK_WEBHOOK}
     channel: feed-devops
