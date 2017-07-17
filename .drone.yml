@@ -8,8 +8,7 @@ pipeline:
     commands:
       - go get
       - go get github.com/mattn/goveralls
-      - go test -cover -coverprofile=coverage.out
-      - goveralls -coverprofile=gover.coverprofile -service=drone  -repotoken ${COVERALLS_TOKEN}
+      - goveralls -repotoken ${COVERALLS_TOKEN}
 
   compile:
     image: golang:1.8
