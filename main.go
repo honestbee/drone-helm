@@ -38,6 +38,11 @@ func main() {
 			Usage:  "Kubernetes helm release",
 			EnvVar: "PLUGIN_CHART,CHART",
 		},
+		cli.StringSliceFlag{
+			Name:   "helm_repos",
+			Usage:  "Repos helm should add",
+			EnvVar: "PLUGIN_HELM_REPOS,HELM_REPOS",
+		},
 		cli.StringFlag{
 			Name:   "values",
 			Usage:  "Kubernetes helm release",
@@ -135,6 +140,7 @@ func run(c *cli.Context) error {
 			Upgrade:       c.Bool("upgrade"),
 			ReuseValues:   c.Bool("reuse-values"),
 			Timeout:       c.String("timeout"),
+			HelmRepos:     c.StringSlice("helm_repos"),
 		},
 	}
 	return plugin.Exec()

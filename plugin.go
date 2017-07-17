@@ -40,6 +40,7 @@ type (
 		ClientOnly    bool     `json:"client_only"`
 		ReuseValues   bool     `json:"reuse_values"`
 		Timeout       string   `json:"timeout"`
+		HelmRepos     []string `json:"helm_repos"`
 	}
 	// Plugin default
 	Plugin struct {
@@ -140,7 +141,16 @@ func doHelmInit(p *Plugin) []string {
 	}
 
 	return init
-
+}
+func doHelmRepoAdd(r string) ([]string, error) {
+	repoAdd := []string{
+		"repo",
+		"add",
+	}
+	if kv := strings.SplitN(unQuote(r), "=", 2); len(kv) == 2 {
+		return append(repoAdd, kv...), nil
+	}
+	return make([]string, 0), fmt.Errorf("Invalid Helm repository definition: %q", r)
 }
 
 // Exec default method
@@ -163,6 +173,22 @@ func (p *Plugin) Exec() error {
 	if err != nil {
 		return fmt.Errorf("Error running helm command: " + strings.Join(init[:], " "))
 	}
+
+	if len(p.Config.HelmRepos) > 0 {
+		for _, repo := range p.Config.HelmRepos {
+			repoAdd, err := doHelmRepoAdd(repo)
+			if err == nil {
+				if p.Config.Debug {
+					log.Println("adding helm repo: " + strings.Join(repoAdd[:], " "))
+				}
+				if err = runCommand(repoAdd); err != nil {
+					return fmt.Errorf("Error adding helm repo: " + err.Error())
+				}
+			}
+			return err
+		}
+	}
+
 	setHelmCommand(p)
 
 	if p.Config.Debug {
@@ -246,6 +272,7 @@ func (p *Plugin) debug() {
 	fmt.Printf("Api server: %s \n", p.Config.APIServer)
 	fmt.Printf("Values: %s \n", p.Config.Values)
 	fmt.Printf("Secrets: %s \n", p.Config.Secrets)
+	fmt.Printf("Helm Repos: %s \n", p.Config.HelmRepos)
 	fmt.Printf("ValuesFiles: %s \n", p.Config.ValuesFiles)
 
 	kubeconfig, err := ioutil.ReadFile(KUBECONFIG)

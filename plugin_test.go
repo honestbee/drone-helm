@@ -224,6 +224,45 @@ func TestDetHelmInitUpgrade(t *testing.T) {
 		t.Error("Helm cannot init in client only")
 	}
 }
+func TestDetHelmRepoAdd(t *testing.T) {
+	plugin := &Plugin{
+		Config: Config{
+			HelmCommand:   nil,
+			Namespace:     "default",
+			SkipTLSVerify: true,
+			Debug:         true,
+			DryRun:        true,
+			Chart:         "./chart/test",
+			Release:       "test-release",
+			Prefix:        "MY",
+			Values:        "image.tag=$TAG,api=${API_SERVER},nameOverride=my-over-app,second.tag=${TAG}",
+			ClientOnly:    true,
+			HelmRepos: []string{
+				`"r1=http://r1.example.com"`, //handle quoted strings
+				`r2=http://r2.example.com`,   //and unquoted strings
+			},
+		},
+	}
+	expected := []string{
+		"repo add r1 http://r1.example.com",
+		"repo add r2 http://r2.example.com",
+	}
+
+	for i, r := range plugin.Config.HelmRepos {
+		repos, err := doHelmRepoAdd(r)
+		if err != nil {
+			t.Error(err)
+		}
+		result := strings.Join(repos, " ")
+		if expected[i] != result {
+			t.Errorf("Helm cannot add remote repositories - expected %q - got %q",
+				expected[i],
+				result,
+			)
+		}
+	}
+}
+
 func TestResolveSecretsFallback(t *testing.T) {
 	tag := "v0.1.1"
 	api := "http://apiserver"
