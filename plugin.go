@@ -184,8 +184,9 @@ func (p *Plugin) Exec() error {
 				if err = runCommand(repoAdd); err != nil {
 					return fmt.Errorf("Error adding helm repo: " + err.Error())
 				}
+			} else {
+				return err
 			}
-			return err
 		}
 	}
 
