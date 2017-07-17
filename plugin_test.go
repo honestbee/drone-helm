@@ -53,7 +53,7 @@ func TestGetHelmCommand(t *testing.T) {
 			DryRun:        true,
 			Chart:         "./chart/test",
 			Release:       "test-release",
-			Values:        "image.tag=v.0.1.0,nameOverride=my-over-app",
+			Values:        `"image.tag=v.0.1.0,nameOverride=my-over-app"`,
 			Wait:          true,
 			ReuseValues:   true,
 			Timeout:       "500",
