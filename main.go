@@ -137,9 +137,5 @@ func run(c *cli.Context) error {
 			Timeout:       c.String("timeout"),
 		},
 	}
-	resolveSecrets(&plugin)
-	if plugin.Config.Debug {
-		plugin.debug()
-	}
 	return plugin.Exec()
 }
