@@ -1,7 +1,7 @@
 FROM alpine:3.6
 MAINTAINER Ivan Pedrazas <ipedrazas@gmail.com>
 
-ENV VERSION v2.5.0
+ENV VERSION v2.5.1
 ENV FILENAME helm-${VERSION}-linux-amd64.tar.gz
 ENV KUBECTL v1.6.6
 
