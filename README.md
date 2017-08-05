@@ -151,4 +151,22 @@ pipeline_production:
   when:
     branch: [master]
 ```
+
+Moreover, if you want to retain all `envs & variables` across the deployment, `reuse_values` need to be enabled to achieve that.
+
+```YAML
+pipeline_production:
+  helm_deploy:
+  image: quay.io/ipedrazas/drone-helm
+  skip_tls_verify: true
+  reuse_values: true
+  chart: ./charts/my-chart
+  release: ${DRONE_BRANCH}
+  values: image.tag=${DRONE_BRANCH}-${DRONE_COMMIT_SHA:0:7}
+  prefix: STAGING
+  when:
+    branch: [master]
+```
+
+
 Happy Helming!
