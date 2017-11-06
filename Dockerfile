@@ -1,9 +1,9 @@
 FROM debian:jessie
 MAINTAINER Ivan Pedrazas <ipedrazas@gmail.com>
 
-ENV VERSION v2.5.1
+ENV VERSION v2.7.0
 ENV FILENAME helm-${VERSION}-linux-amd64.tar.gz
-ENV KUBECTL v1.6.6
+ENV KUBECTL v1.7.10
 
 RUN set -ex \
   && apk -v --no-cache add \
