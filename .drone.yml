@@ -21,8 +21,8 @@ pipeline:
 
   publish:
     image: plugins/docker
-    registry: quay.io
     repo: quay.io/honestbee/drone-helm
+    registry: ${DOCKER_REGISTRY}
     tags: 
       - "latest"
       - ${DRONE_BRANCH}-${DRONE_COMMIT_SHA:0:8}
