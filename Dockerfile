@@ -6,8 +6,8 @@ ENV FILENAME helm-${VERSION}-linux-amd64.tar.gz
 ENV KUBECTL v1.7.10
 
 RUN set -ex \
-  && apk -v --no-cache add \
-    curl \
+  && apt-get update \
+  && apt-get install -y curl \
   && curl -sLo /tmp/${FILENAME} http://storage.googleapis.com/kubernetes-helm/${FILENAME} \
   && curl -sLo /tmp/kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL}/bin/linux/amd64/kubectl \
   && tar -zxvf /tmp/${FILENAME} -C /tmp \
