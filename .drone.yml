@@ -21,6 +21,7 @@ pipeline:
 
   publish:
     image: plugins/docker
+    registry: quay.io
     repo: quay.io/honestbee/drone-helm
     tags: 
       - "latest"
@@ -30,7 +31,7 @@ pipeline:
       - docker_username
       - docker_registry
     when:
-      branch: [master, add-repo-support]
+      branch: [master, add-repo-support, use-debian-as-base]
 
   notify:
     image: plugins/slack
