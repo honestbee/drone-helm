@@ -8,7 +8,9 @@ pipeline:
     commands:
       - go get
       - go get github.com/mattn/goveralls
-      - goveralls -repotoken ${COVERALLS_TOKEN}
+      - goveralls 
+    secrets:
+      - coveralls_token
 
   compile:
     image: golang:1.8
@@ -23,12 +25,18 @@ pipeline:
     tags: 
       - "latest"
       - ${DRONE_BRANCH}-${DRONE_COMMIT_SHA:0:8}
+    secrets:
+      - docker_password
+      - docker_username
+      - docker_registry
     when:
       branch: [master, add-repo-support]
 
   notify:
     image: plugins/slack
-    webhook: ${SLACK_WEBHOOK}
     channel: feed-devops
+    secrets:
+      - slack_webhook
     when:
       status: [ success, failure ]
+
