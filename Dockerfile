@@ -1,4 +1,4 @@
-FROM alpine:3.6
+FROM debian:jessie
 MAINTAINER Ivan Pedrazas <ipedrazas@gmail.com>
 
 ENV VERSION v2.5.1
