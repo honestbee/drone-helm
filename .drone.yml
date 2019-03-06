@@ -2,23 +2,6 @@ workspace:
   base: /go
   path: src/github.com/${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
 
-# pipeline:
-#   test:
-#     image: golang:1.10
-#     commands:
-#       - go get
-#       - go get github.com/mattn/goveralls
-#       - goveralls 
-#     secrets:
-#       - coveralls_token
-
-#   compile:
-#     image: golang:1.10
-#     commands:
-#       - export PATH=$PATH:/go/bin
-#       - mkdir bin
-#       - go build -a -tags netgo -ldflags "-s -w -X main.build=${DRONE_BUILD_NUMBER}" -o bin/drone-helm
-
 pipeline:
   deps:
     image: golang:1.10
@@ -47,34 +30,12 @@ pipeline:
           go build -v -ldflags "-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}" -a -o release/linux/amd64/${DRONE_REPO_NAME}
         fi
 
-  # publish_linux_amd64
-  #   image: plugins/docker
-  #   auto_tag: true
-  #   settings:
-  #     username:
-  #       from_secret: docker_username
-  #     password:
-  #       from_secret: docker_password
-  #     dockerfile: Dockerfile
-  #     repo: quay.io/honestbee/drone-helm
-  #     registry: ${DOCKER_REGISTRY}
-      
-  #   when:
-  #     event: [ tag, push ]
-
-  # build:
-  #   image: golang:1.10
-  #   commands:
-  #     - export PATH=$PATH:/go/bin
-  #     - mkdir bin
-  #     - go build -a -tags netgo -ldflags "-s -w -X main.build=${DRONE_BUILD_NUMBER}" -o bin/drone-helm
-
   publish:
     image: plugins/docker
     repo: quay.io/honestbee/drone-helm
     registry: ${DOCKER_REGISTRY}
     tags: 
-      # - "latest"
+      - "latest"
       - ${DRONE_BRANCH}-${DRONE_COMMIT_SHA:0:8}
     secrets:
       - docker_password
@@ -82,7 +43,7 @@ pipeline:
       - docker_registry
     when:
       event: [ tag, push ]
-      branch: [ master, merge-from-upstream ]
+      branch: [ master ]
 
   notify:
     image: plugins/slack
