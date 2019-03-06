@@ -1,30 +1,35 @@
-FROM alpine:latest
+#
+# ------ Drone-Helm plugin image ------
+#
+
+FROM alpine:3.6
 MAINTAINER Ivan Pedrazas <ipedrazas@gmail.com>
 
-
-RUN apk -Uuv add curl bash && rm /var/cache/apk/*
-
-ENV VERSION v2.5.0
+# Helm version: can be passed at build time
+ARG VERSION
+ENV VERSION ${VERSION:-v2.8.2}
 ENV FILENAME helm-${VERSION}-linux-amd64.tar.gz
-ENV KUBECTL v1.6.6
 
-ADD http://storage.googleapis.com/kubernetes-helm/${FILENAME} /tmp
+ARG KUBECTL
+ENV KUBECTL ${KUBECTL:-v1.7.15}
 
-ADD https://storage.googleapis.com/kubernetes-release/release/${KUBECTL}/bin/linux/amd64/kubectl /tmp
-
-
-RUN tar -zxvf /tmp/${FILENAME} -C /tmp \
+RUN set -ex \
+  && apk add --no-cache curl ca-certificates \
+  && curl -o /tmp/${FILENAME} http://storage.googleapis.com/kubernetes-helm/${FILENAME} \
+  && curl -o /tmp/kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL}/bin/linux/amd64/kubectl \
+  && curl -o /tmp/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator \
+  && tar -zxvf /tmp/${FILENAME} -C /tmp \
   && mv /tmp/linux-amd64/helm /bin/helm \
   && chmod +x /tmp/kubectl \
   && mv /tmp/kubectl /bin/kubectl \
-  && rm -rf /tmp
+  && chmod +x /tmp/aws-iam-authenticator \
+  && mv /tmp/aws-iam-authenticator /bin/aws-iam-authenticator \
+  && rm -rf /tmp/*
 
-LABEL description="Kubeclt and Helm."
+LABEL description="Kubectl and Helm."
 LABEL base="alpine"
-LABEL language="python"
 
-
-COPY drone-helm /bin/drone-helm
+ADD release/linux/amd64/drone-helm /bin/
 COPY kubeconfig /root/.kube/kubeconfig
 
 ENTRYPOINT [ "/bin/drone-helm" ]

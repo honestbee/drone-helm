@@ -1,58 +1,54 @@
 workspace:
   base: /go
-  path: src/github.com/ipedrazas/drone-helm
+  path: src/github.com/${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}
 
 pipeline:
+  deps:
+    image: golang:1.10
+    pull: true
+    commands:
+      - go get -u github.com/golang/dep/cmd/dep
+      - dep ensure -update
+
   test:
-    image: golang:1.8
+    image: golang:1.10
     commands:
-      - go get
-      - go test -cover -coverprofile=coverage.out
+      - go vet
+      - go test ./... -cover -coverprofile=coverage.out
 
-  compile:
-    image: golang:1.8
-    commands:
-      - export PATH=$PATH:/go/bin
-      - go build -ldflags "-s -w -X main.build=$DRONE_BUILD_NUMBER" -a -tags netgo
-
-
-  build_docker_image:
-    image: docker:1.12
+  build:
+    image: golang:1.10
     environment:
-      - DOCKER_HOST=tcp://127.0.0.1:2375
-      - TAG=${DRONE_BRANCH}-${DRONE_COMMIT_SHA:0:7}
+      GOOS: linux
+      GOARCH: amd64
+      CGO_ENABLED: '0'
     commands:
-      - docker login -u="${QUAY_USERNAME}" -p="${QUAY_PASSWORD}" quay.io
-      - docker build -t image .
-      - docker tag image quay.io/ipedrazas/drone-helm:latest
-      - docker tag image quay.io/ipedrazas/drone-helm:${TAG}
-      - docker push quay.io/ipedrazas/drone-helm
-    # when:
-    #  event: [push]
-    #  branch: [master]
+      - |
+        if test "${DRONE_TAG}" = ""; then
+          go build -v -ldflags "-X main.build=${DRONE_BUILD_NUMBER}" -a -o release/linux/amd64/${DRONE_REPO_NAME}
+        else
+          go build -v -ldflags "-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}" -a -o release/linux/amd64/${DRONE_REPO_NAME}
+        fi
 
-  slack:
+  publish:
+    image: plugins/docker
+    repo: quay.io/honestbee/drone-helm
+    registry: ${DOCKER_REGISTRY}
+    tags: 
+      - "latest"
+      - ${DRONE_BRANCH}-${DRONE_COMMIT_SHA:0:8}
+    secrets:
+      - docker_password
+      - docker_username
+      - docker_registry
+    when:
+      event: [ tag, push ]
+      branch: [ master ]
+
+  notify:
     image: plugins/slack
-    channel: deploys
-    username: drone
-    template: >
-      {{ build.author }} finished building  *<http://drone.sohohousedigital.com/SohoHouse/{{ repo.name }}/{{ build.number }}|{{ build.branch }} ({{ build.number }})>* of {{ repo.name }}  with a {{ build.status }} status
-
-
-services:
-  dind:
-    image: docker:1.12-dind
-    privileged: true
-    command:
-      - "-s"
-      - "overlay"
-
-plugin:
-  name: drone-helm
-  desc: Execute helm to
-  type: deploy
-  image: quay.io/ipedrazas/drone-helm
-  labels:
-    - deploy
-    - kubernetes
-    - helm
+    channel: feed-devops
+    secrets:
+      - slack_webhook
+    when:
+      status: [ success, failure ]

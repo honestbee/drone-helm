@@ -26,3 +26,7 @@ _testmain.go
 drone-helm
 *.test
 *.out
+.vscode
+.idea
+vendor
+release
