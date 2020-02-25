@@ -7,7 +7,7 @@ MAINTAINER Ivan Pedrazas <ipedrazas@gmail.com>
 
 # Helm version: can be passed at build time
 ARG VERSION
-ENV VERSION ${VERSION:-v2.8.2}
+ENV VERSION ${VERSION:-v2.14.2}
 ENV FILENAME helm-${VERSION}-linux-amd64.tar.gz
 
 ARG KUBECTL
