@@ -32,7 +32,7 @@ pipeline:
 
   publish:
     image: plugins/docker
-    repo: quay.io/honestbee/drone-helm
+    repo: quay.io/honestbee/drone-helm-migrate
     registry: ${DOCKER_REGISTRY}
     tags: 
       - "latest"
@@ -43,7 +43,7 @@ pipeline:
       - docker_registry
     when:
       event: [ tag, push ]
-      branch: [ master ]
+      branch: [ drone-helm-migrate ]
 
   notify:
     image: plugins/slack
